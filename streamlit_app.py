@@ -11,7 +11,8 @@ TIERS = [
     {"name": "Tier 5", "beans": 8, "diamonds": 2}
 ]
 
-Conversion Functions
+#Conversion Functions
+
 def convertbeans(inputbeans):
     beansleft = inputbeans
     diamonds = 0
