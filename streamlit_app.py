@@ -4,7 +4,7 @@ import pandas as pd
 
 -----------------------------------
 
-🧮 Tier Definitions & Constants
+ Tier Definitions & Constants
 
 -----------------------------------
 TIERS = [
