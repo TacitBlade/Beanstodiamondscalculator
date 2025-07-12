@@ -1,110 +1,55 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 
-#Tier Definitions & Constants
+# 🌟 Page setup
+st.set_page_config(
+    page_title="Bean Converter Dashboard",
+    page_icon="🫘",
+    layout="wide"
+)
 
-TIERS = [
-    {"name": "Tier 1", "beans": 10999, "diamonds": 3045},
-    {"name": "Tier 2", "beans": 3999, "diamonds": 1105},
-    {"name": "Tier 3", "beans": 999, "diamonds": 275},
-    {"name": "Tier 4", "beans": 109, "diamonds": 29},
-    {"name": "Tier 5", "beans": 8, "diamonds": 2}
-]
+# 🧾 Tier Definitions & Constants
+TIER_RATES = {
+    "Tier 1": 1.0,
+    "Tier 2": 1.2,
+    "Tier 3": 1.5
+}
 
-#Conversion Functions
+AGENT_NAMES = ["Alice", "Bob", "Charlie"]
 
-def convertbeans(inputbeans):
-    beansleft = inputbeans
-    diamonds = 0
-    used_beans = 0
-    breakdown = []
+# 📥 Sidebar: User inputs
+with st.sidebar:
+    st.header("Input Parameters")
+    selected_agent = st.selectbox("Select Agent", AGENT_NAMES)
+    selected_tier = st.selectbox("Select Tier", list(TIER_RATES.keys()))
+    beans_input = st.number_input("Enter Beans", min_value=0)
 
-    for tier in TIERS:
-        count = beans_left // tier["beans"]
-        if count > 0:
-            used = count * tier["beans"]
-            gained = count * tier["diamonds"]
-            beans_left -= used
-            diamonds += gained
-            used_beans += used
-            breakdown.append({
-                "Tier": tier["name"],
-                "Count": count,
-                "Used Beans": used,
-                "Gained Diamonds": gained,
-                "Efficiency": round(tier["diamonds"] / tier["beans"], 4)
-            })
+# 🔍 Conversion Logic
+def convert_beans(beans, tier):
+    rate = TIER_RATES.get(tier, 1.0)
+    return beans * rate
 
-    metrics = {
-        "Efficiency": round(diamonds / usedbeans, 4) if usedbeans else 0,
-        "Used %": round((usedbeans / inputbeans) * 100, 2) if input_beans else 0,
-        "Unused Beans": beans_left,
-        "Total Diamonds": diamonds
-    }
+converted_beans = convert_beans(beans_input, selected_tier)
 
-    return breakdown, metrics
+# 📊 Display Output
+st.title("Bean Converter Dashboard")
+st.subheader(f"Results for {selected_agent}")
+st.write(f"Tier Selected: **{selected_tier}**")
+st.write(f"Original Beans: **{beans_input}**")
+st.write(f"Converted Beans: 🫘 **{converted_beans:.2f}**")
 
-def reverseconvert(targetdiamonds):
-    tiers_sorted = sorted(TIERS, key=lambda x: x["diamonds"] / x["beans"], reverse=True)
-    beans_needed = 0
-    breakdown = []
+# 📤 Export to Excel
+def export_to_excel(agent, tier, beans, converted):
+    df = pd.DataFrame({
+        "Agent": [agent],
+        "Tier": [tier],
+        "Input Beans": [beans],
+        "Converted Beans": [converted]
+    })
+    with pd.ExcelWriter("bean_conversion_output.xlsx", engine="openpyxl") as writer:
+        df.to_excel(writer, index=False)
+    st.success("Excel file exported successfully!")
 
-    for tier in tiers_sorted:
-        count = target_diamonds // tier["diamonds"]
-        if count > 0:
-            used_diamonds = count * tier["diamonds"]
-            used_beans = count * tier["beans"]
-            beansneeded += usedbeans
-            targetdiamonds -= useddiamonds
-            breakdown.append({
-                "Tier": tier["name"],
-                "Count": count,
-                "Used Beans": used_beans,
-                "Gained Diamonds": used_diamonds,
-                "Efficiency": round(tier["diamonds"] / tier["beans"], 4)
-            })
-
-    return breakdown, beansneeded, targetdiamonds
-
-#Strategy Helper
-
-def generate_tip(eff, usage):
-    if eff >= 0.3 and usage > 80:
-        return "✅ You're squeezing great value from your beans!"
-    elif eff < 0.2 and usage > 70:
-        return "⚠️ Prioritize higher tiers for better yield."
-    elif usage < 50:
-        return "💡 Try saving up to unlock premium tiers."
-    return "🔍 Mixed strategy detected. Tweak and explore options."
-
-#Streamlit UI
-
-st.setpageconfig(pagetitle="Bean Converter Dashboard", pageicon="🫘")
-st.title("💰 Bean-to-Diamond Conversion Lab")
-
-mode = st.radio("Choose Mode", ["Forward Conversion", "Reverse Target"])
-
-if mode == "Forward Conversion":
-    beans = st.numberinput("Enter Bean Count:", minvalue=0, step=1)
-    if st.button("Convert"):
-        breakdown, metrics = convert_beans(beans)
-        st.subheader("📊 Metrics")
-        st.metric("Efficiency", metrics["Efficiency"])
-        st.metric("Used %", f"{metrics['Used %']}%")
-        st.metric("Unused Beans", metrics["Unused Beans"])
-        st.metric("Total Diamonds", metrics["Total Diamonds"])
-        st.info(generate_tip(metrics["Efficiency"], metrics["Used %"]))
-        st.subheader("📦 Breakdown")
-        df = pd.DataFrame(breakdown)
-        st.dataframe(df)
-        st.barchart(df.setindex("Tier")[["Gained Diamonds"]])
-
-elif mode == "Reverse Target":
-    target = st.numberinput("Target Diamonds:", minvalue=1)
-    if st.button("Calculate Required Beans"):
-        breakdown, beansneeded, shortfall = reverseconvert(target)
-        st.metric("Beans Needed", beans_needed)
-        st.metric("Remaining Diamonds", shortfall)
-        df = pd.DataFrame(breakdown)
-        st.dataframe(df)
-        st.barchart(df.setindex("Tier")[["Used Beans"]])
+if st.button("Export to Excel"):
+    export_to_excel(selected_agent, selected_tier, beans_input, converted_beans)
