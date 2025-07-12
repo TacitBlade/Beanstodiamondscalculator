@@ -2,24 +2,18 @@
 import streamlit as st
 import pandas as pd
 
-#-----------------------------------
+ #Tier Definitions & Constants
 
- Tier Definitions & Constants
-
-#-----------------------------------
 TIERS = [
     {"name": "Tier 1", "beans": 10999, "diamonds": 3045},
     {"name": "Tier 2", "beans": 3999, "diamonds": 1105},
     {"name": "Tier 3", "beans": 999, "diamonds": 275},
     {"name": "Tier 4", "beans": 109, "diamonds": 29},
     {"name": "Tier 5", "beans": 8, "diamonds": 2},
-]
 
-#-----------------------------------
 
- Conversion Functions
+ #Conversion Functions
 
-#-----------------------------------
 def convertbeans(inputbeans):
     beansleft = inputbeans
     diamonds = 0
@@ -73,11 +67,8 @@ def reverseconvert(targetdiamonds):
 
     return breakdown, beansneeded, targetdiamonds
 
-#-----------------------------------
+ #Strategy Helper
 
- Strategy Helper
-
-#-----------------------------------
 def generate_tip(eff, usage):
     if eff >= 0.3 and usage > 80:
         return "✅ You're squeezing great value from your beans!"
@@ -87,11 +78,8 @@ def generate_tip(eff, usage):
         return "💡 Try saving up to unlock premium tiers."
     return "🔍 Mixed strategy detected. Tweak and explore options."
 
-#-----------------------------------
 
- Streamlit UI
-
-#-----------------------------------
+ #Streamlit Ui
 st.setpageconfig(pagetitle="Bean Converter Dashboard", pageicon="🫘")
 st.title("💰 Bean-to-Diamond Conversion Lab")
 
