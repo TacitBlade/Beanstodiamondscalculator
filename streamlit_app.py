@@ -66,7 +66,8 @@ def reverseconvert(targetdiamonds):
 
     return breakdown, beansneeded, targetdiamonds
 
-Strategy Helper
+#Strategy Helper
+
 def generate_tip(eff, usage):
     if eff >= 0.3 and usage > 80:
         return "✅ You're squeezing great value from your beans!"
@@ -76,7 +77,8 @@ def generate_tip(eff, usage):
         return "💡 Try saving up to unlock premium tiers."
     return "🔍 Mixed strategy detected. Tweak and explore options."
 
-Streamlit UI
+#Streamlit UI
+
 st.setpageconfig(pagetitle="Bean Converter Dashboard", pageicon="🫘")
 st.title("💰 Bean-to-Diamond Conversion Lab")
 
