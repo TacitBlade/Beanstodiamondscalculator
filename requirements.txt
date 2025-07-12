@@ -1,2 +1,6 @@
 streamlit
 pandas
+Dict
+List
+Optional
+Tuple
