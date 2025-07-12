@@ -1,56 +1,110 @@
 import streamlit as st
-from openai import OpenAI
+import pandas as pd
 
-# Show title and description.
-st.title("💬 Chatbot")
-st.write(
-    "This is a simple chatbot that uses OpenAI's GPT-3.5 model to generate responses. "
-    "To use this app, you need to provide an OpenAI API key, which you can get [here](https://platform.openai.com/account/api-keys). "
-    "You can also learn how to build this app step by step by [following our tutorial](https://docs.streamlit.io/develop/tutorials/llms/build-conversational-apps)."
-)
+--- Conversion Tiers ---
+TIERS = [
+    {"tier": "Tier 1", "diamonds": 3045, "beans": 10999},
+    {"tier": "Tier 2", "diamonds": 1105, "beans": 3999},
+    {"tier": "Tier 3", "diamonds": 275, "beans": 999},
+    {"tier": "Tier 4", "diamonds": 29, "beans": 109},
+    {"tier": "Tier 5", "diamonds": 2, "beans": 8},
+]
 
-# Ask user for their OpenAI API key via `st.text_input`.
-# Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
-# via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
-openai_api_key = st.text_input("OpenAI API Key", type="password")
-if not openai_api_key:
-    st.info("Please add your OpenAI API key to continue.", icon="🗝️")
-else:
+--- Forward Conversion ---
+def convertbeans(inputbeans):
+    beansleft = inputbeans
+    diamonds = 0
+    total_used = 0
+    breakdown = []
 
-    # Create an OpenAI client.
-    client = OpenAI(api_key=openai_api_key)
+    for t in TIERS:
+        count = beans_left // t["beans"]
+        if count > 0:
+            used = count * t["beans"]
+            gained = count * t["diamonds"]
+            beans_left -= used
+            diamonds += gained
+            total_used += used
+            breakdown.append({
+                "Tier": t["tier"],
+                "Count": count,
+                "Used Beans": used,
+                "Gained Diamonds": gained,
+                "Efficiency (💎/🫘)": round(t["diamonds"] / t["beans"], 4)
+            })
 
-    # Create a session state variable to store the chat messages. This ensures that the
-    # messages persist across reruns.
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+    metrics = {
+        "Conversion Efficiency": round(diamonds / totalused, 4) if totalused else 0,
+        "Beans Usage Rate (%)": round((totalused / inputbeans) * 100, 2) if input_beans else 0,
+        "Unused Beans": beans_left,
+        "Total Diamonds": diamonds
+    }
 
-    # Display the existing chat messages via `st.chat_message`.
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+    return breakdown, metrics
 
-    # Create a chat input field to allow the user to enter a message. This will display
-    # automatically at the bottom of the page.
-    if prompt := st.chat_input("What is up?"):
+--- Reverse Conversion ---
+def reverseconvert(targetdiamonds):
+    sorted_tiers = sorted(TIERS, key=lambda x: x["diamonds"] / x["beans"], reverse=True)
+    required_beans = 0
+    breakdown = []
 
-        # Store and display the current prompt.
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
+    for t in sorted_tiers:
+        count = target_diamonds // t["diamonds"]
+        if count > 0:
+            used_diamonds = count * t["diamonds"]
+            used_beans = count * t["beans"]
+            requiredbeans += usedbeans
+            targetdiamonds -= useddiamonds
+            breakdown.append({
+                "Tier": t["tier"],
+                "Count": count,
+                "Used Beans": used_beans,
+                "Gained Diamonds": used_diamonds,
+                "Efficiency (💎/🫘)": round(t["diamonds"] / t["beans"], 4)
+            })
 
-        # Generate a response using the OpenAI API.
-        stream = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": m["role"], "content": m["content"]}
-                for m in st.session_state.messages
-            ],
-            stream=True,
-        )
+    return breakdown, requiredbeans, targetdiamonds
 
-        # Stream the response to the chat using `st.write_stream`, then store it in 
-        # session state.
-        with st.chat_message("assistant"):
-            response = st.write_stream(stream)
-        st.session_state.messages.append({"role": "assistant", "content": response})
+--- Strategy Tip Generator ---
+def generatetip(efficiency, usagerate):
+    if efficiency >= 0.3 and usage_rate > 80:
+        return "✅ You're maximizing your beans smartly."
+    elif efficiency < 0.2 and usage_rate > 70:
+        return "⚠️ Consider prioritizing higher tiers next time."
+    elif usage_rate < 50:
+        return "💡 Try saving more beans to access better tiers."
+    return "🔍 Mixed strategy detected. A tier overview might help."
+
+--- UI ---
+st.setpageconfig(pagetitle="Tactical Bean Calculator", pageicon="🧠")
+st.title("🧠 Bean-to-Diamond Tactical Dashboard")
+
+mode = st.radio("Choose Mode", ["Forward Conversion", "Reverse Target"])
+
+if mode == "Forward Conversion":
+    beans = st.numberinput("Enter beans:", minvalue=0, step=1)
+    if st.button("Convert"):
+        breakdown, metrics = convert_beans(beans)
+        st.subheader("📊 Conversion Metrics")
+        st.metric("💎 Conversion Efficiency", metrics["Conversion Efficiency"])
+        st.metric("📈 Beans Usage Rate", f"{metrics['Beans Usage Rate (%)']}%")
+        st.metric("🗑️ Beans Left", metrics["Unused Beans"])
+        st.metric("💎 Total Diamonds", metrics["Total Diamonds"])
+
+        st.info(generate_tip(metrics["Conversion Efficiency"], metrics["Beans Usage Rate (%)"]))
+        df = pd.DataFrame(breakdown)
+        st.subheader("📦 Tier Breakdown")
+        st.dataframe(df)
+        st.barchart(df.setindex("Tier")[["Gained Diamonds"]])
+
+elif mode == "Reverse Target":
+    diamondsgoal = st.numberinput("Target Diamonds:", min_value=1, step=1)
+    if st.button("Calculate Required Beans"):
+        breakdown, beansneeded, shortfall = reverseconvert(diamonds_goal)
+        st.subheader("📐 Reverse Strategy Breakdown")
+        st.metric("🫘 Beans Needed", beans_needed)
+        st.metric("💎 Diamonds Remaining", shortfall)
+        df = pd.DataFrame(breakdown)
+        st.dataframe(df)
+
+        st.barchart(df.setindex("Tier")[["Used Beans"]])
