@@ -17,7 +17,7 @@ TIERS = [
 
 -----------------------------------
 
-⚙️ Conversion Functions
+ Conversion Functions
 
 -----------------------------------
 def convertbeans(inputbeans):
@@ -75,7 +75,7 @@ def reverseconvert(targetdiamonds):
 
 -----------------------------------
 
-🧠 Strategy Helper
+ Strategy Helper
 
 -----------------------------------
 def generate_tip(eff, usage):
@@ -89,7 +89,7 @@ def generate_tip(eff, usage):
 
 -----------------------------------
 
-🎛️ Streamlit UI
+ Streamlit UI
 
 -----------------------------------
 st.setpageconfig(pagetitle="Bean Converter Dashboard", pageicon="🫘")
