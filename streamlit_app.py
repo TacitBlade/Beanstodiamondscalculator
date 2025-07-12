@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
 
-Tier Definitions & Constants
+#Tier Definitions & Constants
+
 TIERS = [
     {"name": "Tier 1", "beans": 10999, "diamonds": 3045},
     {"name": "Tier 2", "beans": 3999, "diamonds": 1105},
