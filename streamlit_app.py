@@ -1,110 +1,124 @@
+`python
 import streamlit as st
 import pandas as pd
 
---- Conversion Tiers ---
+-----------------------------------
+
+🧮 Tier Definitions & Constants
+
+-----------------------------------
 TIERS = [
-    {"tier": "Tier 1", "diamonds": 3045, "beans": 10999},
-    {"tier": "Tier 2", "diamonds": 1105, "beans": 3999},
-    {"tier": "Tier 3", "diamonds": 275, "beans": 999},
-    {"tier": "Tier 4", "diamonds": 29, "beans": 109},
-    {"tier": "Tier 5", "diamonds": 2, "beans": 8},
+    {"name": "Tier 1", "beans": 10999, "diamonds": 3045},
+    {"name": "Tier 2", "beans": 3999, "diamonds": 1105},
+    {"name": "Tier 3", "beans": 999, "diamonds": 275},
+    {"name": "Tier 4", "beans": 109, "diamonds": 29},
+    {"name": "Tier 5", "beans": 8, "diamonds": 2},
 ]
 
---- Forward Conversion ---
+-----------------------------------
+
+⚙️ Conversion Functions
+
+-----------------------------------
 def convertbeans(inputbeans):
     beansleft = inputbeans
     diamonds = 0
-    total_used = 0
+    used_beans = 0
     breakdown = []
 
-    for t in TIERS:
-        count = beans_left // t["beans"]
+    for tier in TIERS:
+        count = beans_left // tier["beans"]
         if count > 0:
-            used = count * t["beans"]
-            gained = count * t["diamonds"]
+            used = count * tier["beans"]
+            gained = count * tier["diamonds"]
             beans_left -= used
             diamonds += gained
-            total_used += used
+            used_beans += used
             breakdown.append({
-                "Tier": t["tier"],
+                "Tier": tier["name"],
                 "Count": count,
                 "Used Beans": used,
                 "Gained Diamonds": gained,
-                "Efficiency (💎/🫘)": round(t["diamonds"] / t["beans"], 4)
+                "Efficiency": round(tier["diamonds"] / tier["beans"], 4)
             })
 
     metrics = {
-        "Conversion Efficiency": round(diamonds / totalused, 4) if totalused else 0,
-        "Beans Usage Rate (%)": round((totalused / inputbeans) * 100, 2) if input_beans else 0,
+        "Efficiency": round(diamonds / usedbeans, 4) if usedbeans else 0,
+        "Used %": round((usedbeans / inputbeans) * 100, 2) if input_beans else 0,
         "Unused Beans": beans_left,
         "Total Diamonds": diamonds
     }
 
     return breakdown, metrics
 
---- Reverse Conversion ---
 def reverseconvert(targetdiamonds):
-    sorted_tiers = sorted(TIERS, key=lambda x: x["diamonds"] / x["beans"], reverse=True)
-    required_beans = 0
+    tiers_sorted = sorted(TIERS, key=lambda x: x["diamonds"] / x["beans"], reverse=True)
+    beans_needed = 0
     breakdown = []
 
-    for t in sorted_tiers:
-        count = target_diamonds // t["diamonds"]
+    for tier in tiers_sorted:
+        count = target_diamonds // tier["diamonds"]
         if count > 0:
-            used_diamonds = count * t["diamonds"]
-            used_beans = count * t["beans"]
-            requiredbeans += usedbeans
+            used_diamonds = count * tier["diamonds"]
+            used_beans = count * tier["beans"]
+            beansneeded += usedbeans
             targetdiamonds -= useddiamonds
             breakdown.append({
-                "Tier": t["tier"],
+                "Tier": tier["name"],
                 "Count": count,
                 "Used Beans": used_beans,
                 "Gained Diamonds": used_diamonds,
-                "Efficiency (💎/🫘)": round(t["diamonds"] / t["beans"], 4)
+                "Efficiency": round(tier["diamonds"] / tier["beans"], 4)
             })
 
-    return breakdown, requiredbeans, targetdiamonds
+    return breakdown, beansneeded, targetdiamonds
 
---- Strategy Tip Generator ---
-def generatetip(efficiency, usagerate):
-    if efficiency >= 0.3 and usage_rate > 80:
-        return "✅ You're maximizing your beans smartly."
-    elif efficiency < 0.2 and usage_rate > 70:
-        return "⚠️ Consider prioritizing higher tiers next time."
-    elif usage_rate < 50:
-        return "💡 Try saving more beans to access better tiers."
-    return "🔍 Mixed strategy detected. A tier overview might help."
+-----------------------------------
 
---- UI ---
-st.setpageconfig(pagetitle="Tactical Bean Calculator", pageicon="🧠")
-st.title("🧠 Bean-to-Diamond Tactical Dashboard")
+🧠 Strategy Helper
+
+-----------------------------------
+def generate_tip(eff, usage):
+    if eff >= 0.3 and usage > 80:
+        return "✅ You're squeezing great value from your beans!"
+    elif eff < 0.2 and usage > 70:
+        return "⚠️ Prioritize higher tiers for better yield."
+    elif usage < 50:
+        return "💡 Try saving up to unlock premium tiers."
+    return "🔍 Mixed strategy detected. Tweak and explore options."
+
+-----------------------------------
+
+🎛️ Streamlit UI
+
+-----------------------------------
+st.setpageconfig(pagetitle="Bean Converter Dashboard", pageicon="🫘")
+st.title("💰 Bean-to-Diamond Conversion Lab")
 
 mode = st.radio("Choose Mode", ["Forward Conversion", "Reverse Target"])
 
 if mode == "Forward Conversion":
-    beans = st.numberinput("Enter beans:", minvalue=0, step=1)
+    beans = st.numberinput("Enter Bean Count:", minvalue=0, step=1)
     if st.button("Convert"):
         breakdown, metrics = convert_beans(beans)
-        st.subheader("📊 Conversion Metrics")
-        st.metric("💎 Conversion Efficiency", metrics["Conversion Efficiency"])
-        st.metric("📈 Beans Usage Rate", f"{metrics['Beans Usage Rate (%)']}%")
-        st.metric("🗑️ Beans Left", metrics["Unused Beans"])
-        st.metric("💎 Total Diamonds", metrics["Total Diamonds"])
-
-        st.info(generate_tip(metrics["Conversion Efficiency"], metrics["Beans Usage Rate (%)"]))
+        st.subheader("📊 Metrics")
+        st.metric("Efficiency", metrics["Efficiency"])
+        st.metric("Used %", f"{metrics['Used %']}%")
+        st.metric("Unused Beans", metrics["Unused Beans"])
+        st.metric("Total Diamonds", metrics["Total Diamonds"])
+        st.info(generate_tip(metrics["Efficiency"], metrics["Used %"]))
+        st.subheader("📦 Breakdown")
         df = pd.DataFrame(breakdown)
-        st.subheader("📦 Tier Breakdown")
         st.dataframe(df)
         st.barchart(df.setindex("Tier")[["Gained Diamonds"]])
 
 elif mode == "Reverse Target":
-    diamondsgoal = st.numberinput("Target Diamonds:", min_value=1, step=1)
+    target = st.numberinput("Target Diamonds:", minvalue=1)
     if st.button("Calculate Required Beans"):
-        breakdown, beansneeded, shortfall = reverseconvert(diamonds_goal)
-        st.subheader("📐 Reverse Strategy Breakdown")
-        st.metric("🫘 Beans Needed", beans_needed)
-        st.metric("💎 Diamonds Remaining", shortfall)
+        breakdown, beansneeded, shortfall = reverseconvert(target)
+        st.metric("Beans Needed", beans_needed)
+        st.metric("Remaining Diamonds", shortfall)
         df = pd.DataFrame(breakdown)
         st.dataframe(df)
-
         st.barchart(df.setindex("Tier")[["Used Beans"]])
+`
