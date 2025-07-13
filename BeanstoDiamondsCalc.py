@@ -64,7 +64,9 @@ class BeansToDiamondsCalculator:
 
         for tier in reversed(self.conversion_tiers):
             if remaining_beans >= tier.min_beans:
-                beans_in_tier = min(remaining_beans, int(tier.max_beans))
+                # Fix: handle infinite max_beans
+                max_beans = tier.max_beans if tier.max_beans != float('inf') else remaining_beans
+                beans_in_tier = min(remaining_beans, int(max_beans))
                 if tier.fixed_diamonds and beans_in_tier == tier.max_beans:
                     diamonds = tier.fixed_diamonds
                 else:
