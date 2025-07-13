@@ -169,3 +169,9 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+    st.markdown(
+    "<div style='text-align: center; font-size: 14px; margin-top: 32px;'>© 2025 Alpha Agency & T Star Agency. All rights reserved.</div>",
+    unsafe_allow_html=True
+)
+
