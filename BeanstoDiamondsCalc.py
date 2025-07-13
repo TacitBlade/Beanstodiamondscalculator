@@ -57,6 +57,44 @@ class BeansToDiamondsCalculator:
             'tier': tier_number
         }
 
+    def optimize_beans(self, beans: int):
+        breakdown = []
+        total_diamonds = 0
+        remaining_beans = beans
+
+        for tier in reversed(self.conversion_tiers):
+            if remaining_beans >= tier.min_beans:
+                beans_in_tier = min(remaining_beans, int(tier.max_beans))
+                if tier.fixed_diamonds and beans_in_tier == tier.max_beans:
+                    diamonds = tier.fixed_diamonds
+                else:
+                    diamonds = math.floor(beans_in_tier * tier.diamonds_per_bean)
+                breakdown.append({
+                    'tier': self.conversion_tiers.index(tier) + 1,
+                    'beans': beans_in_tier,
+                    'diamonds': diamonds,
+                    'rate': tier.diamonds_per_bean,
+                    'efficiency': tier.efficiency
+                })
+                total_diamonds += diamonds
+                remaining_beans -= beans_in_tier
+
+        # If any beans remain, process them in the lowest tier
+        if remaining_beans > 0:
+            tier = self.conversion_tiers[0]
+            diamonds = math.floor(remaining_beans * tier.diamonds_per_bean)
+            breakdown.append({
+                'tier': 1,
+                'beans': remaining_beans,
+                'diamonds': diamonds,
+                'rate': tier.diamonds_per_bean,
+                'efficiency': tier.efficiency
+            })
+            total_diamonds += diamonds
+
+        breakdown = sorted(breakdown, key=lambda x: x['tier'])
+        return breakdown, total_diamonds
+
     def get_efficiency_tip(self, beans: int) -> str:
         if beans < 109:
             return "💡 Tip: Efficiency increases significantly after 109 beans!"
@@ -101,6 +139,18 @@ def main():
                 st.info(f"Beans remainder: {result['remainder']} (may not convert)")
             st.info(f"Tier: {result['tier']}")
             st.markdown(f"**{calculator.get_efficiency_tip(beans)}**")
+
+            # Optimization breakdown
+            st.subheader("🔎 Optimized Conversion Breakdown")
+            breakdown, total_diamonds = calculator.optimize_beans(beans)
+            st.write(f"**Total Diamonds (Optimized): {total_diamonds}**")
+            st.table({
+                "Tier": [b['tier'] for b in breakdown],
+                "Beans Used": [b['beans'] for b in breakdown],
+                "Diamonds Earned": [b['diamonds'] for b in breakdown],
+                "Rate": [f"{b['rate']:.4f}" for b in breakdown],
+                "Efficiency": [f"{b['efficiency']}%" for b in breakdown],
+            })
         else:
             st.error("❌ Unable to calculate conversion.")
 
