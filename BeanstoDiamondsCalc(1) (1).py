@@ -143,7 +143,7 @@ def main():
         if result:
             st.success("✅ Conversion Result")
             st.metric("Diamonds", result['diamonds'])
-            st.metric("Efficiency", f"{result['efficiency']}%"
+            st.metric("Efficiency", f"{result['efficiency']}%")
             st.metric("Rate", f"{result['diamonds_per_bean']:.4f} per bean")
             if result['remainder'] > 0:
                 st.info(f"Beans remainder: {result['remainder']} (may not convert)")
