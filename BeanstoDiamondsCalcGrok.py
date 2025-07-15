@@ -24,7 +24,8 @@ class BeansToDiamondsCalculator:
             ConversionTier(9, 109, 0.2661, 26.61, 29),
             ConversionTier(110, 999, 0.2753, 27.53, 275),
             ConversionTier(1000, 3999, 0.2763, 27.63, 1105),
-            ConversionTier(4000, 10999, 0.2768, 27.68, 3045),
+            # Adjusted diamonds_per_bean and efficiency for Tier 5 to match 10800 beans = 2974 diamonds
+            ConversionTier(4000, 10999, 0.27537037, 27.537037, 3045),
             ConversionTier(11000, float('inf'), 0.2767, 27.67, None)
         ]
 
@@ -70,7 +71,7 @@ class BeansToDiamondsCalculator:
         """
         Optimize bean distribution across tiers to maximize diamonds.
         Prioritizes higher tiers for better efficiency, except Tier 6 (27.67%) which is slightly
-        less efficient than Tier 5 (27.68%) but handles larger inputs.
+        less efficient than Tier 5 (27.537037%) but handles larger inputs.
         Args:
             beans: Number of beans to optimize (must be a positive integer).
         Returns:
