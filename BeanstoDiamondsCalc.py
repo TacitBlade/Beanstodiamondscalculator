@@ -19,7 +19,7 @@ class ConversionTier:
 class BeansToDiamondsCalculator:
     def __init__(self):
         self.conversion_tiers = [
-            ConversionTier(1, 4, 0.25, 25.00, 1)
+            ConversionTier(1, 4, 0.25, 25.00, 1),
             ConversionTier(1, 8, 0.25, 25.00, 2),
             ConversionTier(9, 109, 0.2661, 26.61, 29),
             ConversionTier(110, 999, 0.2753, 27.53, 275),
