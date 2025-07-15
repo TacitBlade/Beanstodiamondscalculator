@@ -24,7 +24,6 @@ class BeansToDiamondsCalculator:
             ConversionTier(275, 999, 0.2753, 27.53, 275),
             ConversionTier(1105, 3999, 0.2763, 27.63, 1105),
             ConversionTier(3045, 10999, 0.2768, 27.66, 3045),
-            ConversionTier(11000, float('inf'), 0.2766, 27.67, None)
         ]
 
     def find_tier(self, beans: int) -> Optional[ConversionTier]:
