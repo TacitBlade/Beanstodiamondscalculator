@@ -19,11 +19,11 @@ class ConversionTier:
 class BeansToDiamondsCalculator:
     def __init__(self):
         self.conversion_tiers = [
-            ConversionTier(2, 8, 0.25, 25.00, 2),
-            ConversionTier(29, 109, 0.2661, 26.61, 29),
-            ConversionTier(275, 999, 0.2753, 27.53, 275),
-            ConversionTier(1105, 3999, 0.2763, 27.63, 1105),
-            ConversionTier(3045, 10999, 0.2768, 27.66, 3045),
+            ConversionTier(2, 8, 2),
+            ConversionTier(29, 109, 29),
+            ConversionTier(275, 999, 275),
+            ConversionTier(1105, 3999, 1105),
+            ConversionTier(3045, 10999, 3045),
         ]
 
     def find_tier(self, beans: int) -> Optional[ConversionTier]:
