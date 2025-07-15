@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Beans to Diamonds Calculator (Streamlit version)
@@ -76,6 +75,7 @@ class BeansToDiamondsCalculator:
                 total_diamonds += diamonds
                 remaining_beans -= beans_in_tier
 
+        # If any beans remain, process them in the lowest tier
         if remaining_beans > 0:
             tier = self.conversion_tiers[0]
             diamonds = math.floor(remaining_beans * tier.diamonds_per_bean)
